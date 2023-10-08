@@ -1,7 +1,7 @@
 # Личный проект «Шесть городов»
 
 * Студент: [Дарья Жукова](https://up.htmlacademy.ru/univer-nodejs-api/2/user/2231381).
-* Наставник: `Неизвестно`.
+* Наставник: [Владислав Поляков](https://htmlacademy.ru/profile/polrk).
 
 ---
 
