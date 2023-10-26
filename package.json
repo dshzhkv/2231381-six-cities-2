@@ -19,11 +19,11 @@
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123"
   },
   "devDependencies": {
+    "@types/convict": "6.1.1",
+    "@types/convict-format-with-validator": "6.0.2",
     "@types/node": "18.16.3",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "@typescript-eslint/parser": "5.46.0",
-    "@types/convict": "6.1.1",
-    "@types/convict-format-with-validator": "6.0.2",
     "eslint": "8.39.0",
     "eslint-config-htmlacademy": "9.1.1",
     "json-server": "0.17.1",
@@ -44,6 +44,8 @@
     "dayjs": "1.11.7",
     "dotenv": "^16.0.3",
     "got": "12.6.0",
-    "pino": "8.7.0"
+    "inversify": "^6.0.1",
+    "pino": "8.7.0",
+    "reflect-metadata": "^0.1.13"
   }
 }
