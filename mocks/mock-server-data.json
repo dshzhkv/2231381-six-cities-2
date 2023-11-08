@@ -14,6 +14,21 @@
       "image1.jpg",
       "image2.jpg",
       "image3.jpg"
+    ],
+    "names": [
+      "Иван",
+      "Дарья",
+      "Василий"
+    ],
+    "emails": [
+      "cvetochek2002@mail.ru",
+      "yagodka98@mail.ru",
+      "bandit2005@mail.ru"
+    ],
+    "avatars": [
+      "avatar1.jpg",
+      "avatar2.jpg",
+      "avatar3.jpg"
     ]
   }
 }

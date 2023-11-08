@@ -11,6 +11,7 @@ import {
 } from '../../core/helpers/random.js';
 import {HousingType} from '../../types/housing-type.enum.js';
 import {Facility} from '../../types/facility.enum.js';
+import {UserType} from '../../types/user-type.enum.js';
 
 const FIRST_WEEK_DAY = 1;
 const LAST_WEEK_DAY = 7;
@@ -33,7 +34,10 @@ export default class OfferGenerator implements OfferGeneratorInterface {
     const guestsNumber = generateRandomNumber(1, 10);
     const price = generateRandomNumber(100, 100000);
     const facilities = getRandomItems<string>(Object.values(Facility)).join(';');
-    const authorId = generateId();
+    const authorName = getRandomItem<string>(this.mockData.names);
+    const authorEmail = getRandomItem<string>(this.mockData.emails);
+    const authorUserType = getRandomItem<string>(Object.values(UserType));
+    const authorAvatarPath = generateRandomBoolean() ? getRandomItem<string>(this.mockData.avatars) : '';
     const commentsNumber = generateRandomNumber(1, 100);
     const commentsIdsArray = [];
     for (let i = 0; i < commentsNumber; i++) {
@@ -43,7 +47,10 @@ export default class OfferGenerator implements OfferGeneratorInterface {
     const coordinates = `${Cities[city].latitude};${Cities[city].longitude}`;
 
     return [
-      title, description, publishDate, city, previewImage, images, isPremium, isFavourite, rating, housingType, roomsNumber, guestsNumber, price, facilities, authorId, commentsIds, coordinates
+      title, description, publishDate, city, previewImage, images, isPremium, isFavourite, rating, housingType, roomsNumber, guestsNumber, price, facilities, authorEmail,
+      authorName,
+      authorUserType,
+      authorAvatarPath, commentsIds, coordinates
     ].join('\t');
   }
 }
