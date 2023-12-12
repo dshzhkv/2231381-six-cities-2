@@ -6,7 +6,7 @@ import {types} from '@typegoose/typegoose';
 import {OfferEntity} from './offer.entity.js';
 import {DocumentType} from '@typegoose/typegoose/lib/types.js';
 import CreateOfferDto from './dto/create-offer.dto.js';
-import UpdateOfferDto from "./dto/update-offer.dto";
+import UpdateOfferDto from "./dto/update-offer.dto.js";
 
 @injectable()
 export default class OfferService implements OfferServiceInterface {

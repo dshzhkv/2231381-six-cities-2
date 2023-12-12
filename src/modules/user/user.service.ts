@@ -6,8 +6,8 @@ import {inject, injectable} from 'inversify';
 import {AppComponent} from '../../types/app-component.enum.js';
 import {LoggerInterface} from '../../core/logger/logger.interface.js';
 import {types} from '@typegoose/typegoose';
-import UpdateUserDto from "./dto/update-user.dto";
-import {OfferEntity} from "../offer/offer.entity";
+import UpdateUserDto from "./dto/update-user.dto.js";
+import {OfferEntity} from "../offer/offer.entity.js";
 
 @injectable()
 export default class UserService implements UserServiceInterface {
