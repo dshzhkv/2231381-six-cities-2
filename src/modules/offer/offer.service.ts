@@ -6,6 +6,7 @@ import {types} from '@typegoose/typegoose';
 import {OfferEntity} from './offer.entity.js';
 import {DocumentType} from '@typegoose/typegoose/lib/types.js';
 import CreateOfferDto from './dto/create-offer.dto.js';
+import UpdateOfferDto from "./dto/update-offer.dto";
 
 @injectable()
 export default class OfferService implements OfferServiceInterface {
@@ -27,5 +28,38 @@ export default class OfferService implements OfferServiceInterface {
   public async findOrCreate(offerId: string, dto: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
     const existingOffer = await this.findById(offerId);
     return existingOffer ?? await this.create(dto);
+  }
+
+  public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
+  public async updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, dto, {new: true})
+      .populate(['userId', 'categories'])
+      .exec();
+  }
+
+  public async countComments(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, {'$inc': {
+          commentCount: 1,
+        }}).exec();
+  }
+
+  public async countRating(offerId: string, rating: number): Promise<void> {
+    await this.offerModel.findByIdAndUpdate(offerId, {rating: rating}, {new: true}).exec();
+  }
+
+  public async getPremiumByCity(city: string): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find({city: city, premium: true})
+      .sort({createdAt: -1})
+      .limit(3)
+      .populate('userId')
+      .exec();
   }
 }
