@@ -6,7 +6,7 @@ import {types} from '@typegoose/typegoose';
 import {OfferEntity} from './offer.entity.js';
 import {DocumentType} from '@typegoose/typegoose/lib/types.js';
 import CreateOfferDto from './dto/create-offer.dto.js';
-import UpdateOfferDto from "./dto/update-offer.dto";
+import UpdateOfferDto from "./dto/update-offer.dto.js";
 
 @injectable()
 export default class OfferService implements OfferServiceInterface {
@@ -60,6 +60,16 @@ export default class OfferService implements OfferServiceInterface {
       .sort({createdAt: -1})
       .limit(3)
       .populate('userId')
+      .exec();
+  }
+
+  public async find(count: number | undefined): Promise<DocumentType<OfferEntity>[]> {
+    const limit = count ?? 60;
+    return this.offerModel
+      .find()
+      .sort({createdAt: -1})
+      .populate('userId')
+      .limit(limit)
       .exec();
   }
 }
