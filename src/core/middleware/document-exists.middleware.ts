@@ -4,6 +4,7 @@ import { MiddlewareInterface } from './middleware.interface.js';
 import { DocumentExistsInterface } from '../../types/document-exists.interface.js';
 import HttpError from '../errors/http-error.js';
 
+
 export class DocumentExistsMiddleware implements MiddlewareInterface {
   constructor(
     private readonly service: DocumentExistsInterface,
