@@ -12,4 +12,5 @@ export interface OfferServiceInterface {
   countComments(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   getPremiumByCity(city: string): Promise<DocumentType<OfferEntity>[]>;
   countRating(offerId: string, rating: number): Promise<void>;
+  find(count: number | undefined): Promise<DocumentType<OfferEntity>[]>;
 }
