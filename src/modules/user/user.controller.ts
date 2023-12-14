@@ -14,27 +14,67 @@ import LoginDto from "./dto/login.dto.js";
 import UserRdo from "./rdo/user.rdo.js";
 import {RestSchema} from "../../core/config/rest.schema.js";
 import {DetailedOfferRdo} from "../offer/rdo/detailed-offer.rdo.js";
+import {ValidateDtoMiddleware} from "../../core/middleware/validate-dto.middleware.js";
+import {ValidateObjectIdMiddleware} from "../../core/middleware/validate-objectid.middleware.js";
+import {DocumentExistsMiddleware} from "../../core/middleware/document-exists.middleware.js";
+import {OfferServiceInterface} from "../offer/offer-service.interface.js";
 
 
 @injectable()
 export default class UserController extends Controller {
   constructor(@inject(AppComponent.LoggerInterface) logger: LoggerInterface,
-              @inject(AppComponent.OfferServiceInterface) private readonly userService: UserServiceInterface,
-              @inject(AppComponent.ConfigInterface) private readonly configService: ConfigInterface<RestSchema>
+              @inject(AppComponent.UserServiceInterface) private readonly userService: UserServiceInterface,
+              @inject(AppComponent.ConfigInterface) private readonly configService: ConfigInterface<RestSchema>,
+              @inject(AppComponent.OfferServiceInterface) private readonly offerService: OfferServiceInterface
   ) {
     super(logger);
 
     this.logger.info('Register routes for CategoryController…');
 
-    this.addRoute({path: '/register', method: HttpMethod.Get, handler: this.register});
-    this.addRoute({path: '/login', method: HttpMethod.Post, handler: this.login});
-    this.addRoute({path: '/logout', method: HttpMethod.Post, handler: this.logout});
-    this.addRoute({path: '/favorite/:offerId', method: HttpMethod.Post, handler: this.addFavorite});
-    this.addRoute({path: '/favorite/:offerId', method: HttpMethod.Delete, handler: this.deleteFavorite});
+    this.addRoute({
+      path: '/register',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [
+        new ValidateDtoMiddleware(CreateUserDto)
+      ]
+    });
+    this.addRoute({
+      path: '/login',
+      method: HttpMethod.Post,
+      handler: this.login,
+      middlewares: [
+        new ValidateDtoMiddleware(LoginDto)
+      ]
+    });
+    this.addRoute({
+      path: '/logout',
+      method: HttpMethod.Post,
+      handler: this.logout
+    });
+    this.addRoute({
+      path: '/favorites/:offerId',
+      method: HttpMethod.Post,
+      handler: this.addFavorite,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
+
+    this.addRoute({
+      path: '/favorites/:offerId',
+      method: HttpMethod.Delete,
+      handler: this.deleteFavorite,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
     this.addRoute({path: '/favorite', method: HttpMethod.Get, handler: this.getFavorite});
   }
 
-  public async register(
+  public async create(
     {body}: Request<Record<string, unknown>, Record<string, unknown>, CreateUserDto>,
     res: Response): Promise<void> {
     const user = await this.userService.findByEmail(body.email);
