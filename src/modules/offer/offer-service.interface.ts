@@ -13,4 +13,5 @@ export interface OfferServiceInterface {
   getPremiumByCity(city: string): Promise<DocumentType<OfferEntity>[]>;
   countRating(offerId: string, rating: number): Promise<void>;
   find(count: number | undefined): Promise<DocumentType<OfferEntity>[]>;
+  exists(documentId: string): Promise<boolean>;
 }
