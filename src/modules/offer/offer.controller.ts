@@ -17,6 +17,7 @@ import {CommentRdo} from "../comment/rdo/comment.rdo.js";
 import { ValidateDtoMiddleware } from '../../core/middleware/validate-dto.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../core/middleware/validate-objectid.middleware.js';
 import {DocumentExistsMiddleware} from "../../core/middleware/document-exists.middleware.js";
+import {PrivateRouteMiddleware} from "../../core/middleware/private-route.middleware.js";
 
 @injectable()
 export default class OfferController extends Controller {
@@ -40,6 +41,7 @@ export default class OfferController extends Controller {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateOfferDto)
       ]
     });
@@ -59,6 +61,7 @@ export default class OfferController extends Controller {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
@@ -70,6 +73,7 @@ export default class OfferController extends Controller {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId')
       ]
     });
@@ -90,11 +94,10 @@ export default class OfferController extends Controller {
   }
 
   public async create(
-    { body }: Request<Record<string, unknown>, Record<string, unknown>, CreateOfferDto>,
+    { body, user }: Request<Record<string, unknown>, Record<string, unknown>, CreateOfferDto>,
     res: Response
   ): Promise<void> {
-
-    const result = await this.offerService.create(body);
+    const result = await this.offerService.create({ ...body, authorId: user.id });
     this.created(res, result);
   }
 

@@ -11,6 +11,7 @@ import {CommentRdo} from "./rdo/comment.rdo.js";
 import { ValidateDtoMiddleware } from '../../core/middleware/validate-dto.middleware.js';
 import {DocumentExistsMiddleware} from "../../core/middleware/document-exists.middleware.js";
 import {OfferServiceInterface} from "../offer/offer-service.interface.js";
+import {PrivateRouteMiddleware} from "../../core/middleware/private-route.middleware.js";
 
 
 @injectable()
@@ -27,14 +28,15 @@ export default class CommentController extends Controller {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
     });
   }
 
-  public async create({body}: Request<object, object, CreateCommentDto>, res: Response): Promise<void> {
-    const comment = await this.commentService.create(body);
+  public async create({body, user}: Request<object, object, CreateCommentDto>, res: Response): Promise<void> {
+    const comment = await this.commentService.create({ ...body, authorId: user.id });
     this.created(res, fillDTO(CommentRdo, comment));
   }
 }
