@@ -7,6 +7,7 @@ import {DatabaseClientInterface} from '../core/database-client/database-client.i
 import {getMongoURI} from '../core/helpers/db.js';
 import express, {Express} from "express";
 import {ControllerInterface} from "../core/controller/controller.interface.js";
+import {ExceptionFilterInterface} from "../core/exception-filters/exception-filter.interface.js";
 
 @injectable()
 export default class RestApplication {
@@ -17,6 +18,7 @@ export default class RestApplication {
     @inject(AppComponent.ConfigInterface) private readonly config: ConfigInterface<RestSchema>,
     @inject(AppComponent.DatabaseClientInterface) private readonly databaseClient: DatabaseClientInterface,
     @inject(AppComponent.OfferController) private readonly offerController: ControllerInterface,
+    @inject(AppComponent.ExceptionFilterInterface) private readonly exceptionFilter: ExceptionFilterInterface,
   ) {
     this.expressApplication = express();
   }
@@ -58,12 +60,19 @@ export default class RestApplication {
     this.logger.info('Controller initialization completed');
   }
 
+  private async _initExceptionFilters() {
+    this.logger.info('Exception filters initialization');
+    this.expressApplication.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
+    this.logger.info('Exception filters completed');
+  }
+
   public async init() {
     this.logger.info('Application initialization…');
 
     await this._initDb();
     await this._initMiddleware();
     await this._initRoutes();
+    await this._initExceptionFilters();
     await this._initServer();
   }
 }
