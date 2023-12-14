@@ -14,6 +14,9 @@ import HttpError from "../../core/errors/http-error.js";
 import {DetailedOfferRdo} from "./rdo/detailed-offer.rdo.js";
 import {CommentServiceInterface} from "../comment/comment-service.interface.js";
 import {CommentRdo} from "../comment/rdo/comment.rdo.js";
+import { ValidateDtoMiddleware } from '../../core/middleware/validate-dto.middleware.js';
+import { ValidateObjectIdMiddleware } from '../../core/middleware/validate-objectid.middleware.js';
+import {DocumentExistsMiddleware} from "../../core/middleware/document-exists.middleware.js";
 
 @injectable()
 export default class OfferController extends Controller {
@@ -26,12 +29,57 @@ export default class OfferController extends Controller {
 
     this.logger.info('Register routes for OfferController…');
 
-    this.addRoute({path: '/', method: HttpMethod.Get, handler: this.index});
-    this.addRoute({path: '/', method: HttpMethod.Post, handler: this.create});
-    this.addRoute({path: '/:offerId', method: HttpMethod.Get, handler: this.get});
-    this.addRoute({path: '/:offerId', method: HttpMethod.Patch, handler: this.update});
-    this.addRoute({path: '/:offerId', method: HttpMethod.Delete, handler: this.delete});
-    this.addRoute({path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium});
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Get,
+      handler: this.index
+    });
+
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [
+        new ValidateDtoMiddleware(CreateOfferDto)
+      ]
+    });
+
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Get,
+      handler: this.get,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
+
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Patch,
+      handler: this.update,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new ValidateDtoMiddleware(UpdateOfferDto),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
+
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Delete,
+      handler: this.delete,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId')
+      ]
+    });
+
+    this.addRoute({
+      path: '/premium/:city',
+      method: HttpMethod.Get,
+      handler: this.getPremium
+    });
+
     this.addRoute({path: '/:offerId/comments', method: HttpMethod.Get, handler: this.getComments});
   }
 
@@ -88,15 +136,6 @@ export default class OfferController extends Controller {
 
   public async getPremium({params}: Request<Record<string, unknown>>, res: Response): Promise<void> {
     const offer = await this.offerService.getPremiumByCity(`${params.city}`);
-
-    if (!offer) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `Offers by city ${params.city} not found.`,
-        'OfferController',
-      );
-    }
-
     this.ok(res, offer);
   }
 
@@ -104,14 +143,6 @@ export default class OfferController extends Controller {
     { params }: Request<Record<string, unknown>>,
     res: Response
   ): Promise<void> {
-    if (!await this.offerService.exists(`${params.offerId}`)) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `Offer with id ${params.offerId} not found.`,
-        'OfferController'
-      );
-    }
-
     const comments = await this.commentService.findByOfferId(`${params.offerId}`);
     this.ok(res, fillDTO(CommentRdo, comments));
   }
