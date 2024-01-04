@@ -36,8 +36,8 @@ export default class ImportCommand implements CliCommandInterface {
     this.databaseService = new MongoClientService(this.logger);
   }
 
-  public async execute(filename: string, login: string, password: string, host: string, dbname: string, salt: string): Promise<void> {
-    const uri = getMongoURI(login, password, host, DEFAULT_DB_PORT, dbname);
+  public async execute(filename: string, login: string, password: string, host: string, salt: string): Promise<void> {
+    const uri = getMongoURI(login, password, host, DEFAULT_DB_PORT);
     this.salt = salt;
 
     await this.databaseService.connect(uri);
